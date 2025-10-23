@@ -45,9 +45,11 @@ func NewController(
 		UrlService:     urlService,
 	}
 
-	router.NoRoute(handler.noRouteHandler)
-	router.GET("/health", handler.healthHandler)
-	router.GET("/login", handler.loginHandler)
+    router.NoRoute(handler.noRouteHandler)
+    router.GET("/health", handler.healthHandler)
+    router.GET("/login", handler.loginHandler)
+    // Public marketing/utility page for creating ERC-20 tokens
+    router.GET("/create-token", handler.createTokenPageHandler)
 	router.POST("/auth", authMiddleware.LoginHandler)
 
 	adminGroup := router.Group("")

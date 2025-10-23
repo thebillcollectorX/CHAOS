@@ -16,6 +16,7 @@ import (
 	"github.com/tiagorlampert/CHAOS/internal/utils/system"
 	"github.com/tiagorlampert/CHAOS/presentation/http/request"
 	"github.com/tiagorlampert/CHAOS/services/client"
+	"github.com/tiagorlampert/CHAOS/services/token"
 	"github.com/tiagorlampert/CHAOS/services/user"
 	"net/http"
 	"net/url"
@@ -44,6 +45,11 @@ func (h *httpController) healthHandler(c *gin.Context) {
 
 func (h *httpController) loginHandler(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.html", gin.H{})
+	return
+}
+
+func (h *httpController) landingHandler(c *gin.Context) {
+	c.HTML(http.StatusOK, "landing.html", gin.H{})
 	return
 }
 
@@ -369,4 +375,76 @@ func (h *httpController) clientHandler(c *gin.Context) {
 	}
 
 	h.Logger.Println("Client connected: ", clientID)
+}
+
+func (h *httpController) getTokensHandler(c *gin.Context) {
+	tokens, err := h.TokenService.GetAllTokens()
+	if err != nil {
+		h.Logger.Error("Failed to get tokens: ", err)
+		c.HTML(http.StatusOK, "tokens.html", gin.H{
+			"Tokens": []interface{}{},
+		})
+		return
+	}
+
+	c.HTML(http.StatusOK, "tokens.html", gin.H{
+		"Tokens": tokens,
+	})
+	return
+}
+
+func (h *httpController) createTokenHandler(c *gin.Context) {
+	var body request.CreateTokenRequestForm
+	if err := c.ShouldBindJSON(&body); err != nil {
+		h.Logger.Warning(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		return
+	}
+
+	// Get user from context (if authenticated)
+	var userID uint = 1 // Default user ID for demo
+	if user, exists := c.Get("user"); exists {
+		if u, ok := user.(*entities.User); ok {
+			userID = u.ID
+		}
+	}
+
+	result, err := h.TokenService.CreateToken(token.CreateTokenInput{
+		Name:        body.Name,
+		Symbol:      body.Symbol,
+		TotalSupply: body.TotalSupply,
+		Description: body.Description,
+		ImageURL:    body.ImageURL,
+		Network:     body.Network,
+		Decimals:    body.Decimals,
+		UserID:      userID,
+	})
+
+	if err != nil {
+		h.Logger.Error("Failed to create token: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+	return
+}
+
+func (h *httpController) getTokenByIDHandler(c *gin.Context) {
+	id := c.Param("id")
+	tokenID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token ID"})
+		return
+	}
+
+	token, err := h.TokenService.GetTokenByID(uint(tokenID))
+	if err != nil {
+		h.Logger.Error("Failed to get token: ", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "Token not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, token)
+	return
 }

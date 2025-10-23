@@ -14,10 +14,12 @@ import (
 	httpDelivery "github.com/tiagorlampert/CHAOS/presentation/http"
 	authRepo "github.com/tiagorlampert/CHAOS/repositories/auth"
 	deviceRepo "github.com/tiagorlampert/CHAOS/repositories/device"
+	tokenRepo "github.com/tiagorlampert/CHAOS/repositories/token"
 	userRepo "github.com/tiagorlampert/CHAOS/repositories/user"
 	"github.com/tiagorlampert/CHAOS/services/auth"
 	"github.com/tiagorlampert/CHAOS/services/client"
 	"github.com/tiagorlampert/CHAOS/services/device"
+	"github.com/tiagorlampert/CHAOS/services/token"
 	"github.com/tiagorlampert/CHAOS/services/url"
 	"github.com/tiagorlampert/CHAOS/services/user"
 	"gorm.io/gorm"
@@ -66,10 +68,12 @@ func NewApp(logger *logrus.Logger, configuration *environment.Configuration, dbC
 	authRepository := authRepo.NewRepository(dbClient)
 	userRepository := userRepo.NewRepository(dbClient)
 	deviceRepository := deviceRepo.NewRepository(dbClient)
+	tokenRepository := tokenRepo.NewRepository(dbClient)
 
 	authService := auth.NewAuthService(logger, configuration.SecretKey, authRepository)
 	userService := user.NewUserService(userRepository)
 	deviceService := device.NewDeviceService(deviceRepository)
+	tokenService := token.NewService(tokenRepository)
 	clientService := client.NewClientService(Version, configuration, authRepository, authService)
 	urlService := url.NewUrlService(clientService)
 
@@ -80,7 +84,7 @@ func NewApp(logger *logrus.Logger, configuration *environment.Configuration, dbC
 	router := httpDelivery.NewRouter()
 	jwtMiddleware := middleware.NewJwtMiddleware(authService, userService)
 
-	httpDelivery.NewController(configuration, router, logger, jwtMiddleware, clientService, authService, userService, deviceService, urlService)
+	httpDelivery.NewController(configuration, router, logger, jwtMiddleware, clientService, authService, userService, deviceService, urlService, tokenService)
 
 	return &App{
 		Configuration: configuration,

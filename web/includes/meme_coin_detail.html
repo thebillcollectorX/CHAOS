@@ -1,0 +1,263 @@
+{{ define "meme_coin_detail" }}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-coins"></i> Meme Coin Details</h2>
+                <div>
+                    <a href="/meme-coins" class="btn btn-outline-primary mr-2">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                    <a href="/meme-coins/create" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create New
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="memeCoinDetail">
+        <!-- Content will be loaded here -->
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    const memeCoinId = '{{.id}}';
+    
+    function loadMemeCoinDetail() {
+        $.ajax({
+            url: '/api/meme-coins/' + memeCoinId,
+            type: 'GET',
+            success: function(response) {
+                displayMemeCoinDetail(response.data);
+            },
+            error: function(xhr) {
+                $('#memeCoinDetail').html(`
+                    <div class="col-12">
+                        <div class="alert alert-danger">
+                            <h4>Error Loading Meme Coin</h4>
+                            <p>Failed to load meme coin details. Please try again later.</p>
+                        </div>
+                    </div>
+                `);
+            }
+        });
+    }
+
+    function displayMemeCoinDetail(coin) {
+        const statusBadge = getStatusBadge(coin.status);
+        const networkBadge = getNetworkBadge(coin.network);
+        
+        const html = `
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <img src="${coin.image_url || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjBGMEYwIi8+CjxjaXJjbGUgY3g9IjMwIiBjeT0iMzAiIHI9IjI0IiBmaWxsPSIjNjY3RUVBIi8+Cjx0ZXh0IHg9IjMwIiB5PSIzNiIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q09JTjwvdGV4dD4KPC9zdmc+" 
+                                 class="rounded-circle mr-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            <div>
+                                <h4 class="mb-0">${coin.name}</h4>
+                                <span class="badge badge-secondary">${coin.symbol}</span>
+                                ${statusBadge}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5>Token Information</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-sm">
+                                    <tr><td><strong>Name:</strong></td><td>${coin.name}</td></tr>
+                                    <tr><td><strong>Symbol:</strong></td><td>${coin.symbol}</td></tr>
+                                    <tr><td><strong>Network:</strong></td><td>${networkBadge}</td></tr>
+                                    <tr><td><strong>Status:</strong></td><td>${statusBadge}</td></tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-sm">
+                                    <tr><td><strong>Total Supply:</strong></td><td>${parseInt(coin.total_supply).toLocaleString()}</td></tr>
+                                    <tr><td><strong>Decimals:</strong></td><td>${coin.decimals}</td></tr>
+                                    <tr><td><strong>Created:</strong></td><td>${new Date(coin.created_at).toLocaleString()}</td></tr>
+                                    <tr><td><strong>Creator:</strong></td><td>${coin.creator.username || 'Unknown'}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        ${coin.description ? `
+                            <h5>Description</h5>
+                            <p>${coin.description}</p>
+                        ` : ''}
+                        
+                        ${coin.contract_address ? `
+                            <h5>Contract Address</h5>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="${coin.contract_address}" readonly>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyContractAddress('${coin.contract_address}')">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Social Links</h5>
+                    </div>
+                    <div class="card-body">
+                        ${coin.website ? `
+                            <div class="mb-3">
+                                <strong>Website:</strong><br>
+                                <a href="${coin.website}" target="_blank">${coin.website}</a>
+                            </div>
+                        ` : ''}
+                        
+                        ${coin.twitter ? `
+                            <div class="mb-3">
+                                <strong>Twitter:</strong><br>
+                                <a href="https://twitter.com/${coin.twitter.replace('@', '')}" target="_blank">${coin.twitter}</a>
+                            </div>
+                        ` : ''}
+                        
+                        ${coin.telegram ? `
+                            <div class="mb-3">
+                                <strong>Telegram:</strong><br>
+                                <a href="https://t.me/${coin.telegram.replace('@', '')}" target="_blank">${coin.telegram}</a>
+                            </div>
+                        ` : ''}
+                        
+                        ${coin.discord ? `
+                            <div class="mb-3">
+                                <strong>Discord:</strong><br>
+                                <a href="${coin.discord}" target="_blank">${coin.discord}</a>
+                            </div>
+                        ` : ''}
+                        
+                        ${!coin.website && !coin.twitter && !coin.telegram && !coin.discord ? `
+                            <p class="text-muted">No social links available</p>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5>Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            ${coin.contract_address ? `
+                                <button class="btn btn-primary" onclick="viewOnExplorer('${coin.contract_address}', '${coin.network}')">
+                                    <i class="fas fa-external-link-alt"></i> View on Explorer
+                                </button>
+                            ` : ''}
+                            
+                            <button class="btn btn-outline-primary" onclick="shareMemeCoin('${coin.id}')">
+                                <i class="fas fa-share"></i> Share
+                            </button>
+                            
+                            <button class="btn btn-outline-secondary" onclick="copyMemeCoinInfo('${coin.name}', '${coin.symbol}', '${coin.contract_address}')">
+                                <i class="fas fa-copy"></i> Copy Info
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#memeCoinDetail').html(html);
+    }
+
+    function getStatusBadge(status) {
+        const badges = {
+            'pending': '<span class="badge badge-warning">Pending</span>',
+            'deploying': '<span class="badge badge-info">Deploying</span>',
+            'deployed': '<span class="badge badge-success">Deployed</span>',
+            'failed': '<span class="badge badge-danger">Failed</span>'
+        };
+        return badges[status] || '<span class="badge badge-secondary">Unknown</span>';
+    }
+
+    function getNetworkBadge(network) {
+        const badges = {
+            'ethereum': '<span class="badge badge-primary">Ethereum</span>',
+            'bsc': '<span class="badge badge-warning">BSC</span>',
+            'polygon': '<span class="badge badge-info">Polygon</span>',
+            'arbitrum': '<span class="badge badge-secondary">Arbitrum</span>',
+            'optimism': '<span class="badge badge-success">Optimism</span>'
+        };
+        return badges[network] || '<span class="badge badge-secondary">Unknown</span>';
+    }
+
+    // Copy contract address
+    window.copyContractAddress = function(address) {
+        navigator.clipboard.writeText(address).then(function() {
+            Swal.fire({
+                title: 'Copied!',
+                text: 'Contract address copied to clipboard',
+                icon: 'success',
+                timer: 2000
+            });
+        });
+    };
+
+    // View on blockchain explorer
+    window.viewOnExplorer = function(address, network) {
+        const explorers = {
+            'ethereum': 'https://etherscan.io/token/',
+            'bsc': 'https://bscscan.com/token/',
+            'polygon': 'https://polygonscan.com/token/',
+            'arbitrum': 'https://arbiscan.io/token/',
+            'optimism': 'https://optimistic.etherscan.io/token/'
+        };
+        
+        const explorerUrl = explorers[network] + address;
+        window.open(explorerUrl, '_blank');
+    };
+
+    // Share meme coin
+    window.shareMemeCoin = function(id) {
+        const url = window.location.origin + '/meme-coins/' + id;
+        if (navigator.share) {
+            navigator.share({
+                title: 'Check out this meme coin!',
+                url: url
+            });
+        } else {
+            navigator.clipboard.writeText(url).then(function() {
+                Swal.fire({
+                    title: 'Copied!',
+                    text: 'Meme coin link copied to clipboard',
+                    icon: 'success',
+                    timer: 2000
+                });
+            });
+        }
+    };
+
+    // Copy meme coin info
+    window.copyMemeCoinInfo = function(name, symbol, contractAddress) {
+        let info = `${name} (${symbol})`;
+        if (contractAddress) {
+            info += `\nContract: ${contractAddress}`;
+        }
+        
+        navigator.clipboard.writeText(info).then(function() {
+            Swal.fire({
+                title: 'Copied!',
+                text: 'Meme coin info copied to clipboard',
+                icon: 'success',
+                timer: 2000
+            });
+        });
+    };
+
+    // Load meme coin detail
+    loadMemeCoinDetail();
+});
+</script>
+{{ end }}

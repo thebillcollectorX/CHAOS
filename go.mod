@@ -4,6 +4,7 @@ go 1.22.3
 
 require (
 	github.com/appleboy/gin-jwt/v2 v2.9.2
+	github.com/ethereum/go-ethereum v1.13.5
 	github.com/gin-contrib/multitemplate v1.0.1
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.20.0

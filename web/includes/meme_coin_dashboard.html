@@ -1,0 +1,494 @@
+{{ define "meme_coin_dashboard" }}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-coins"></i> My Meme Coins</h2>
+                <a href="/meme-coins/create" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create New Meme Coin
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 id="totalCoins">0</h4>
+                            <p class="mb-0">Total Coins</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-coins fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 id="deployedCoins">0</h4>
+                            <p class="mb-0">Deployed</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-rocket fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 id="pendingCoins">0</h4>
+                            <p class="mb-0">Pending</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 id="totalValue">$0</h4>
+                            <p class="mb-0">Total Value</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-dollar-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search your meme coins...">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select class="form-control" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="deploying">Deploying</option>
+                <option value="deployed">Deployed</option>
+                <option value="failed">Failed</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-control" id="networkFilter">
+                <option value="">All Networks</option>
+                <option value="ethereum">Ethereum</option>
+                <option value="bsc">BSC</option>
+                <option value="polygon">Polygon</option>
+                <option value="arbitrum">Arbitrum</option>
+                <option value="optimism">Optimism</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Meme Coins Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="memeCoinsTable">
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>Symbol</th>
+                                    <th>Network</th>
+                                    <th>Status</th>
+                                    <th>Supply</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memeCoinsTableBody">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <nav aria-label="Meme coins pagination">
+                        <ul class="pagination justify-content-center" id="pagination">
+                            <!-- Pagination will be generated here -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Meme Coin Details Modal -->
+<div class="modal fade" id="memeCoinModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Meme Coin Details</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="deployBtn" style="display: none;">
+                    <i class="fas fa-rocket"></i> Deploy
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    let currentPage = 1;
+    let currentLimit = 10;
+    let currentQuery = '';
+    let currentStatus = '';
+    let currentNetwork = '';
+
+    // Load meme coins
+    function loadMemeCoins(page = 1, limit = 10, query = '', status = '', network = '') {
+        const params = new URLSearchParams({
+            limit: limit,
+            offset: (page - 1) * limit
+        });
+        
+        if (query) params.append('q', query);
+        if (status) params.append('status', status);
+        if (network) params.append('network', network);
+
+        $.ajax({
+            url: '/api/meme-coins/my?' + params.toString(),
+            type: 'GET',
+            success: function(response) {
+                displayMemeCoins(response.data);
+                updateStats(response.data);
+                generatePagination(page, Math.ceil(response.total / limit));
+            },
+            error: function(xhr) {
+                console.error('Error loading meme coins:', xhr);
+                $('#memeCoinsTableBody').html('<tr><td colspan="7" class="text-center">Error loading data</td></tr>');
+            }
+        });
+    }
+
+    // Display meme coins in table
+    function displayMemeCoins(memeCoins) {
+        const tbody = $('#memeCoinsTableBody');
+        tbody.empty();
+
+        if (memeCoins.length === 0) {
+            tbody.html('<tr><td colspan="7" class="text-center">No meme coins found</td></tr>');
+            return;
+        }
+
+        memeCoins.forEach(function(coin) {
+            const statusBadge = getStatusBadge(coin.status);
+            const networkBadge = getNetworkBadge(coin.network);
+            const createdDate = new Date(coin.created_at).toLocaleDateString();
+            
+            const row = `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="${coin.image_url || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjBGMEYwIi8+CjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjE2IiBmaWxsPSIjNjY3RUVBIi8+Cjx0ZXh0IHg9IjIwIiB5PSIyNCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjgiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DPC90ZXh0Pgo8L3N2Zz4='}" 
+                                 class="rounded-circle mr-2" style="width: 40px; height: 40px; object-fit: cover;">
+                            <div>
+                                <div class="font-weight-bold">${coin.name}</div>
+                                <small class="text-muted">${coin.description || 'No description'}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secondary">${coin.symbol}</span></td>
+                    <td>${networkBadge}</td>
+                    <td>${statusBadge}</td>
+                    <td>${parseInt(coin.total_supply).toLocaleString()}</td>
+                    <td>${createdDate}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewMemeCoin('${coin.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${coin.status === 'pending' ? 
+                                `<button class="btn btn-sm btn-outline-success" onclick="deployMemeCoin('${coin.id}')">
+                                    <i class="fas fa-rocket"></i>
+                                </button>` : ''
+                            }
+                            ${coin.status === 'pending' ? 
+                                `<button class="btn btn-sm btn-outline-danger" onclick="deleteMemeCoin('${coin.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>` : ''
+                            }
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tbody.append(row);
+        });
+    }
+
+    // Get status badge
+    function getStatusBadge(status) {
+        const badges = {
+            'pending': '<span class="badge badge-warning">Pending</span>',
+            'deploying': '<span class="badge badge-info">Deploying</span>',
+            'deployed': '<span class="badge badge-success">Deployed</span>',
+            'failed': '<span class="badge badge-danger">Failed</span>'
+        };
+        return badges[status] || '<span class="badge badge-secondary">Unknown</span>';
+    }
+
+    // Get network badge
+    function getNetworkBadge(network) {
+        const badges = {
+            'ethereum': '<span class="badge badge-primary">Ethereum</span>',
+            'bsc': '<span class="badge badge-warning">BSC</span>',
+            'polygon': '<span class="badge badge-info">Polygon</span>',
+            'arbitrum': '<span class="badge badge-secondary">Arbitrum</span>',
+            'optimism': '<span class="badge badge-success">Optimism</span>'
+        };
+        return badges[network] || '<span class="badge badge-secondary">Unknown</span>';
+    }
+
+    // Update stats
+    function updateStats(memeCoins) {
+        const total = memeCoins.length;
+        const deployed = memeCoins.filter(c => c.status === 'deployed').length;
+        const pending = memeCoins.filter(c => c.status === 'pending').length;
+        
+        $('#totalCoins').text(total);
+        $('#deployedCoins').text(deployed);
+        $('#pendingCoins').text(pending);
+        $('#totalValue').text('$0'); // Would calculate from actual values
+    }
+
+    // Generate pagination
+    function generatePagination(currentPage, totalPages) {
+        const pagination = $('#pagination');
+        pagination.empty();
+
+        if (totalPages <= 1) return;
+
+        // Previous button
+        const prevDisabled = currentPage === 1 ? 'disabled' : '';
+        pagination.append(`
+            <li class="page-item ${prevDisabled}">
+                <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+            </li>
+        `);
+
+        // Page numbers
+        for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+            const active = i === currentPage ? 'active' : '';
+            pagination.append(`
+                <li class="page-item ${active}">
+                    <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                </li>
+            `);
+        }
+
+        // Next button
+        const nextDisabled = currentPage === totalPages ? 'disabled' : '';
+        pagination.append(`
+            <li class="page-item ${nextDisabled}">
+                <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+            </li>
+        `);
+    }
+
+    // Change page
+    window.changePage = function(page) {
+        currentPage = page;
+        loadMemeCoins(currentPage, currentLimit, currentQuery, currentStatus, currentNetwork);
+    };
+
+    // Search
+    $('#searchBtn').on('click', function() {
+        currentQuery = $('#searchInput').val();
+        currentPage = 1;
+        loadMemeCoins(currentPage, currentLimit, currentQuery, currentStatus, currentNetwork);
+    });
+
+    $('#searchInput').on('keypress', function(e) {
+        if (e.which === 13) {
+            $('#searchBtn').click();
+        }
+    });
+
+    // Filters
+    $('#statusFilter, #networkFilter').on('change', function() {
+        currentStatus = $('#statusFilter').val();
+        currentNetwork = $('#networkFilter').val();
+        currentPage = 1;
+        loadMemeCoins(currentPage, currentLimit, currentQuery, currentStatus, currentNetwork);
+    });
+
+    // View meme coin details
+    window.viewMemeCoin = function(id) {
+        $.ajax({
+            url: '/api/meme-coins/' + id,
+            type: 'GET',
+            success: function(response) {
+                const coin = response.data;
+                $('#modalTitle').text(coin.name + ' (' + coin.symbol + ')');
+                
+                const modalBody = `
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <img src="${coin.image_url || '/static/images/default-token.png'}" 
+                                 class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-8">
+                            <h5>Token Information</h5>
+                            <table class="table table-sm">
+                                <tr><td><strong>Name:</strong></td><td>${coin.name}</td></tr>
+                                <tr><td><strong>Symbol:</strong></td><td>${coin.symbol}</td></tr>
+                                <tr><td><strong>Network:</strong></td><td>${coin.network.toUpperCase()}</td></tr>
+                                <tr><td><strong>Status:</strong></td><td>${getStatusBadge(coin.status)}</td></tr>
+                                <tr><td><strong>Total Supply:</strong></td><td>${parseInt(coin.total_supply).toLocaleString()}</td></tr>
+                                <tr><td><strong>Decimals:</strong></td><td>${coin.decimals}</td></tr>
+                                <tr><td><strong>Created:</strong></td><td>${new Date(coin.created_at).toLocaleString()}</td></tr>
+                                ${coin.contract_address ? `<tr><td><strong>Contract:</strong></td><td><code>${coin.contract_address}</code></td></tr>` : ''}
+                            </table>
+                            
+                            ${coin.description ? `<h6>Description</h6><p>${coin.description}</p>` : ''}
+                            
+                            <h6>Social Links</h6>
+                            <div class="row">
+                                ${coin.website ? `<div class="col-6"><strong>Website:</strong><br><a href="${coin.website}" target="_blank">${coin.website}</a></div>` : ''}
+                                ${coin.twitter ? `<div class="col-6"><strong>Twitter:</strong><br>${coin.twitter}</div>` : ''}
+                                ${coin.telegram ? `<div class="col-6"><strong>Telegram:</strong><br>${coin.telegram}</div>` : ''}
+                                ${coin.discord ? `<div class="col-6"><strong>Discord:</strong><br>${coin.discord}</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                $('#modalBody').html(modalBody);
+                
+                if (coin.status === 'pending') {
+                    $('#deployBtn').show().off('click').on('click', function() {
+                        deployMemeCoin(coin.id);
+                    });
+                } else {
+                    $('#deployBtn').hide();
+                }
+                
+                $('#memeCoinModal').modal('show');
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to load meme coin details',
+                    icon: 'error'
+                });
+            }
+        });
+    };
+
+    // Deploy meme coin
+    window.deployMemeCoin = function(id) {
+        Swal.fire({
+            title: 'Deploy Meme Coin?',
+            text: 'This will deploy your meme coin to the blockchain. This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Deploy!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/api/meme-coins/' + id + '/deploy',
+                    type: 'POST',
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Your meme coin is being deployed!',
+                            icon: 'success'
+                        });
+                        $('#memeCoinModal').modal('hide');
+                        loadMemeCoins(currentPage, currentLimit, currentQuery, currentStatus, currentNetwork);
+                    },
+                    error: function(xhr) {
+                        const error = xhr.responseJSON ? xhr.responseJSON.error : 'Deployment failed';
+                        Swal.fire({
+                            title: 'Error!',
+                            text: error,
+                            icon: 'error'
+                        });
+                    }
+                });
+            }
+        });
+    };
+
+    // Delete meme coin
+    window.deleteMemeCoin = function(id) {
+        Swal.fire({
+            title: 'Delete Meme Coin?',
+            text: 'This will permanently delete your meme coin. This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Delete!',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#d33'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/api/meme-coins/' + id,
+                    type: 'DELETE',
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Your meme coin has been deleted.',
+                            icon: 'success'
+                        });
+                        loadMemeCoins(currentPage, currentLimit, currentQuery, currentStatus, currentNetwork);
+                    },
+                    error: function(xhr) {
+                        const error = xhr.responseJSON ? xhr.responseJSON.error : 'Deletion failed';
+                        Swal.fire({
+                            title: 'Error!',
+                            text: error,
+                            icon: 'error'
+                        });
+                    }
+                });
+            }
+        });
+    };
+
+    // Initial load
+    loadMemeCoins();
+});
+</script>
+{{ end }}

@@ -1,0 +1,361 @@
+{{ define "meme_coin_creator" }}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-coins"></i> Create Your Meme Coin
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form id="memeCoinForm" enctype="multipart/form-data">
+                        <div class="row">
+                            <!-- Left Column - Form -->
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="name" class="form-label">Token Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           placeholder="e.g., DogeCoin, Shiba Inu" required>
+                                    <small class="form-text text-muted">The full name of your token (1-50 characters)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="symbol" class="form-label">Token Symbol *</label>
+                                    <input type="text" class="form-control" id="symbol" name="symbol" 
+                                           placeholder="e.g., DOGE, SHIB" required style="text-transform: uppercase;">
+                                    <small class="form-text text-muted">The symbol of your token (2-10 characters, uppercase)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" 
+                                              placeholder="Describe your meme coin..."></textarea>
+                                    <small class="form-text text-muted">Optional description of your token (max 500 characters)</small>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="totalSupply" class="form-label">Total Supply *</label>
+                                            <input type="text" class="form-control" id="totalSupply" name="total_supply" 
+                                                   placeholder="1000000000" required>
+                                            <small class="form-text text-muted">Total number of tokens to create</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="decimals" class="form-label">Decimals *</label>
+                                            <select class="form-control" id="decimals" name="decimals" required>
+                                                <option value="18">18 (Recommended)</option>
+                                                <option value="9">9</option>
+                                                <option value="6">6</option>
+                                                <option value="0">0</option>
+                                            </select>
+                                            <small class="form-text text-muted">Number of decimal places</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="network" class="form-label">Blockchain Network *</label>
+                                    <select class="form-control" id="network" name="network" required>
+                                        <option value="">Select Network</option>
+                                        <option value="ethereum">Ethereum (ETH)</option>
+                                        <option value="bsc">Binance Smart Chain (BNB)</option>
+                                        <option value="polygon">Polygon (MATIC)</option>
+                                        <option value="arbitrum">Arbitrum (ETH)</option>
+                                        <option value="optimism">Optimism (ETH)</option>
+                                    </select>
+                                    <small class="form-text text-muted">Choose the blockchain network for deployment</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="imageUpload" class="form-label">Token Image</label>
+                                    <input type="file" class="form-control-file" id="imageUpload" name="image" 
+                                           accept="image/*">
+                                    <small class="form-text text-muted">Upload an image for your token (optional)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="website" class="form-label">Website</label>
+                                    <input type="url" class="form-control" id="website" name="website" 
+                                           placeholder="https://yourwebsite.com">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="twitter" class="form-label">Twitter</label>
+                                    <input type="text" class="form-control" id="twitter" name="twitter" 
+                                           placeholder="@yourtwitter">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="telegram" class="form-label">Telegram</label>
+                                    <input type="text" class="form-control" id="telegram" name="telegram" 
+                                           placeholder="@yourtelegram">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="discord" class="form-label">Discord</label>
+                                    <input type="text" class="form-control" id="discord" name="discord" 
+                                           placeholder="Your Discord Server">
+                                </div>
+                            </div>
+
+                            <!-- Right Column - Preview -->
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Token Preview</h5>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <div id="tokenImagePreview" class="mb-3">
+                                            <img id="previewImg" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjBGMEYwIi8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQwIiBmaWxsPSIjNjY3RUVBIi8+Cjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q09JTjwvdGV4dD4KPC9zdmc+" 
+                                                 alt="Token Preview" class="img-fluid rounded-circle" 
+                                                 style="width: 100px; height: 100px; object-fit: cover;">
+                                        </div>
+                                        <h4 id="previewName">Your Token Name</h4>
+                                        <h5 id="previewSymbol" class="text-muted">SYMBOL</h5>
+                                        <p id="previewDescription" class="text-muted">Token description will appear here...</p>
+                                        
+                                        <div class="row text-center mt-3">
+                                            <div class="col-4">
+                                                <div class="border rounded p-2">
+                                                    <div class="font-weight-bold" id="previewSupply">0</div>
+                                                    <small class="text-muted">Total Supply</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="border rounded p-2">
+                                                    <div class="font-weight-bold" id="previewDecimals">18</div>
+                                                    <small class="text-muted">Decimals</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="border rounded p-2">
+                                                    <div class="font-weight-bold" id="previewNetwork">-</div>
+                                                    <small class="text-muted">Network</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <div class="alert alert-info">
+                                                <strong>Deployment Cost:</strong> 
+                                                <span id="deploymentCost">Select a network</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Social Links Preview -->
+                                <div class="card mt-3">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Social Links</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="socialLinksPreview">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Website:</span>
+                                                <span id="previewWebsite" class="text-muted">-</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Twitter:</span>
+                                                <span id="previewTwitter" class="text-muted">-</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Telegram:</span>
+                                                <span id="previewTelegram" class="text-muted">-</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Discord:</span>
+                                                <span id="previewDiscord" class="text-muted">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button type="button" class="btn btn-secondary mr-2" id="previewBtn">
+                                    <i class="fas fa-eye"></i> Preview Contract
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-lg" id="createBtn">
+                                    <i class="fas fa-rocket"></i> Create Meme Coin
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contract Preview Modal -->
+<div class="modal fade" id="contractPreviewModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Smart Contract Preview</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Contract Code:</label>
+                    <pre id="contractCode" class="bg-light p-3" style="max-height: 400px; overflow-y: auto;"></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Real-time preview updates
+    function updatePreview() {
+        const name = $('#name').val() || 'Your Token Name';
+        const symbol = $('#symbol').val().toUpperCase() || 'SYMBOL';
+        const description = $('#description').val() || 'Token description will appear here...';
+        const totalSupply = $('#totalSupply').val() || '0';
+        const decimals = $('#decimals').val() || '18';
+        const network = $('#network').val() || '-';
+        const website = $('#website').val() || '-';
+        const twitter = $('#twitter').val() || '-';
+        const telegram = $('#telegram').val() || '-';
+        const discord = $('#discord').val() || '-';
+
+        $('#previewName').text(name);
+        $('#previewSymbol').text(symbol);
+        $('#previewDescription').text(description);
+        $('#previewSupply').text(parseInt(totalSupply).toLocaleString());
+        $('#previewDecimals').text(decimals);
+        $('#previewNetwork').text(network.toUpperCase());
+        $('#previewWebsite').text(website);
+        $('#previewTwitter').text(twitter);
+        $('#previewTelegram').text(telegram);
+        $('#previewDiscord').text(discord);
+
+        // Update deployment cost
+        const costs = {
+            'ethereum': '0.05 ETH',
+            'bsc': '0.01 BNB',
+            'polygon': '0.01 MATIC',
+            'arbitrum': '0.01 ETH',
+            'optimism': '0.01 ETH'
+        };
+        $('#deploymentCost').text(costs[network] || 'Select a network');
+    }
+
+    // Bind events
+    $('#name, #symbol, #description, #totalSupply, #decimals, #network, #website, #twitter, #telegram, #discord').on('input change', updatePreview);
+
+    // Image preview
+    $('#imageUpload').on('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#previewImg').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Symbol uppercase conversion
+    $('#symbol').on('input', function() {
+        this.value = this.value.toUpperCase();
+    });
+
+    // Form submission
+    $('#memeCoinForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        // Show loading state
+        $('#createBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Creating...');
+        
+        $.ajax({
+            url: '/api/meme-coins',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Your meme coin has been created successfully!',
+                    icon: 'success',
+                    confirmButtonText: 'Deploy Now'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirect to deployment page or trigger deployment
+                        window.location.href = '/meme-coins/' + response.data.id + '/deploy';
+                    }
+                });
+            },
+            error: function(xhr) {
+                const error = xhr.responseJSON ? xhr.responseJSON.error : 'An error occurred';
+                Swal.fire({
+                    title: 'Error!',
+                    text: error,
+                    icon: 'error'
+                });
+            },
+            complete: function() {
+                $('#createBtn').prop('disabled', false).html('<i class="fas fa-rocket"></i> Create Meme Coin');
+            }
+        });
+    });
+
+    // Contract preview
+    $('#previewBtn').on('click', function() {
+        const formData = {
+            name: $('#name').val(),
+            symbol: $('#symbol').val(),
+            total_supply: $('#totalSupply').val(),
+            decimals: $('#decimals').val()
+        };
+
+        if (!formData.name || !formData.symbol || !formData.total_supply) {
+            Swal.fire({
+                title: 'Incomplete Form',
+                text: 'Please fill in the required fields first.',
+                icon: 'warning'
+            });
+            return;
+        }
+
+        $.ajax({
+            url: '/api/meme-coins/preview-contract',
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json',
+            success: function(response) {
+                $('#contractCode').text(response.contract_code);
+                $('#contractPreviewModal').modal('show');
+            },
+            error: function(xhr) {
+                const error = xhr.responseJSON ? xhr.responseJSON.error : 'An error occurred';
+                Swal.fire({
+                    title: 'Error!',
+                    text: error,
+                    icon: 'error'
+                });
+            }
+        });
+    });
+
+    // Initial preview update
+    updatePreview();
+});
+</script>
+{{ end }}

@@ -1,0 +1,252 @@
+{{define "wallet_connect"}}
+<!-- Wallet Connection Component -->
+<div class="wallet-connection-section">
+    <!-- Connect Wallet Button (shown when not connected) -->
+    <div id="connectWalletSection" class="text-center">
+        <div class="card bg-light border-primary mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-primary">
+                    <i class="fas fa-wallet"></i> Connect Your Wallet
+                </h5>
+                <p class="card-text">
+                    Connect your MetaMask wallet to deploy and manage your tokens on the blockchain.
+                </p>
+                <button id="connectWalletBtn" class="btn btn-primary btn-lg">
+                    <i class="fas fa-wallet"></i> Connect Wallet
+                </button>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        Don't have MetaMask? 
+                        <a href="https://metamask.io/" target="_blank" class="text-primary">Install it here</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wallet Info (shown when connected) -->
+    <div id="walletInfo" class="wallet-info" style="display: none;">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="card-title mb-2">
+                            <i class="fas fa-check-circle"></i> Wallet Connected
+                        </h6>
+                        <div class="wallet-details">
+                            <div class="mb-1">
+                                <strong>Address:</strong> 
+                                <code id="walletAddress" class="text-white">-</code>
+                                <button class="btn btn-sm btn-outline-light ms-2" onclick="copyToClipboard(document.getElementById('walletAddress').title)" title="Copy Address">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="mb-1">
+                                <strong>Network:</strong> 
+                                <span id="walletNetwork">-</span>
+                            </div>
+                            <div>
+                                <strong>Balance:</strong> 
+                                <span id="walletBalance">-</span> 
+                                <span id="walletCurrency">ETH</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button id="disconnectWalletBtn" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-sign-out-alt"></i> Disconnect
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Switcher -->
+        <div class="network-switcher mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-network-wired"></i> Switch Network
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 col-md-3 mb-2">
+                            <button class="btn btn-outline-primary btn-sm w-100 network-switch-btn" data-chain-id="1">
+                                <i class="fab fa-ethereum"></i> Ethereum
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3 mb-2">
+                            <button class="btn btn-outline-warning btn-sm w-100 network-switch-btn" data-chain-id="56">
+                                <i class="fas fa-coins"></i> BSC
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3 mb-2">
+                            <button class="btn btn-outline-info btn-sm w-100 network-switch-btn" data-chain-id="137">
+                                <i class="fas fa-gem"></i> Polygon
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3 mb-2">
+                            <button class="btn btn-outline-danger btn-sm w-100 network-switch-btn" data-chain-id="43114">
+                                <i class="fas fa-mountain"></i> Avalanche
+                            </button>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> 
+                        Make sure to select the same network where you want to deploy your token.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gas Fee Estimator -->
+    <div id="gasFeeEstimator" class="gas-estimator mb-4" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-gas-pump"></i> Deployment Cost Estimate
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="h4 text-primary" id="estimatedGas">-</div>
+                            <small class="text-muted">Gas Limit</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="h4 text-warning" id="gasPrice">-</div>
+                            <small class="text-muted">Gas Price (Gwei)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="h4 text-success" id="totalCost">-</div>
+                            <small class="text-muted">Total Cost</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="updateGasEstimate()">
+                        <i class="fas fa-sync-alt"></i> Refresh Estimate
+                    </button>
+                    <small class="text-muted ms-2">
+                        Gas prices may vary based on network congestion
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.wallet-connection-section .card {
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-details code {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+}
+
+.network-switch-btn {
+    transition: all 0.2s ease;
+}
+
+.network-switch-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.network-switch-btn.active {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+}
+
+.gas-estimator .h4 {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .wallet-details {
+        font-size: 0.875rem;
+    }
+    
+    .network-switch-btn {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.5rem;
+    }
+}
+</style>
+
+<script>
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('Address copied to clipboard!', 'success');
+        });
+    } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showNotification('Address copied to clipboard!', 'success');
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
+async function updateGasEstimate() {
+    if (!window.walletManager || !window.walletManager.isConnected) {
+        return;
+    }
+
+    try {
+        // Sample contract bytecode for estimation (basic ERC-20)
+        const sampleBytecode = '0x608060405234801561001057600080fd5b50...'; // This would be the actual bytecode
+        
+        const gasEstimate = await window.walletManager.estimateGas(sampleBytecode);
+        
+        document.getElementById('estimatedGas').textContent = gasEstimate.gasLimit.toLocaleString();
+        document.getElementById('gasPrice').textContent = window.walletManager.web3.utils.fromWei(gasEstimate.gasPrice, 'gwei');
+        document.getElementById('totalCost').textContent = parseFloat(gasEstimate.gasCost).toFixed(6) + ' ETH';
+        
+        document.getElementById('gasFeeEstimator').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error estimating gas:', error);
+        showNotification('Failed to estimate gas fees', 'error');
+    }
+}
+
+function showNotification(message, type) {
+    if (window.walletManager) {
+        window.walletManager.showNotification(message, type);
+    } else {
+        alert(message);
+    }
+}
+
+// Update gas estimate when wallet is connected
+document.addEventListener('DOMContentLoaded', function() {
+    // Listen for wallet connection events
+    document.addEventListener('walletConnected', function() {
+        setTimeout(updateGasEstimate, 1000);
+    });
+});
+</script>
+{{end}}

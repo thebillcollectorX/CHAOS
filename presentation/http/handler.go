@@ -37,6 +37,37 @@ func (h *httpController) noRouteHandler(c *gin.Context) {
 	return
 }
 
+func (h *httpController) landingHandler(c *gin.Context) {
+	c.HTML(http.StatusOK, "landing.html", gin.H{
+		"Title": "Create Your Meme Token - Token Creator Platform",
+	})
+	return
+}
+
+func (h *httpController) dashboardHandler(c *gin.Context) {
+	c.HTML(http.StatusOK, "dashboard.html", gin.H{
+		"Title": "Dashboard - Token Creator",
+	})
+	return
+}
+
+func (h *httpController) createTokenHandler(c *gin.Context) {
+	c.HTML(http.StatusOK, "token_create.html", gin.H{
+		"Title": "Create New Token - Token Creator",
+	})
+	return
+}
+
+func (h *httpController) editTokenHandler(c *gin.Context) {
+	tokenID := c.Param("id")
+	c.HTML(http.StatusOK, "token_create.html", gin.H{
+		"Title":   "Edit Token - Token Creator",
+		"TokenID": tokenID,
+		"IsEdit":  true,
+	})
+	return
+}
+
 func (h *httpController) healthHandler(c *gin.Context) {
 	c.Status(http.StatusOK)
 	return

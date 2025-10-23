@@ -1,0 +1,319 @@
+{{define "token_create"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-coins"></i> Create Your Meme Token</h4>
+                    <p class="mb-0 opacity-75">Launch your own cryptocurrency in minutes</p>
+                </div>
+                <div class="card-body">
+                    <form id="tokenForm" class="needs-validation" novalidate>
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-lg-6">
+                                <h5 class="mb-3 text-primary"><i class="fas fa-info-circle"></i> Basic Information</h5>
+                                
+                                <div class="mb-3">
+                                    <label for="tokenName" class="form-label">Token Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="tokenName" name="name" 
+                                           placeholder="e.g., Doge Coin" required maxlength="100">
+                                    <div class="invalid-feedback">Please provide a valid token name.</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="tokenSymbol" class="form-label">Token Symbol <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="tokenSymbol" name="symbol" 
+                                           placeholder="e.g., DOGE" required maxlength="20" style="text-transform: uppercase;">
+                                    <div class="invalid-feedback">Please provide a valid token symbol (2-20 characters).</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="tokenDescription" class="form-label">Description</label>
+                                    <textarea class="form-control" id="tokenDescription" name="description" rows="3" 
+                                              placeholder="Describe your token..." maxlength="1000"></textarea>
+                                    <div class="form-text">Optional: Tell people about your token</div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="totalSupply" class="form-label">Total Supply <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" id="totalSupply" name="total_supply" 
+                                                   placeholder="1000000" required min="1">
+                                            <div class="invalid-feedback">Please provide a valid total supply.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="decimals" class="form-label">Decimals</label>
+                                            <select class="form-select" id="decimals" name="decimals">
+                                                <option value="18" selected>18 (Standard)</option>
+                                                <option value="9">9</option>
+                                                <option value="6">6</option>
+                                                <option value="0">0 (No decimals)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="network" class="form-label">Blockchain Network <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="network" name="network" required>
+                                        <option value="">Select Network</option>
+                                        <option value="ethereum">Ethereum (ETH)</option>
+                                        <option value="bsc">Binance Smart Chain (BSC)</option>
+                                        <option value="polygon">Polygon (MATIC)</option>
+                                        <option value="avalanche">Avalanche (AVAX)</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a blockchain network.</div>
+                                </div>
+                            </div>
+
+                            <!-- Token Features -->
+                            <div class="col-lg-6">
+                                <h5 class="mb-3 text-success"><i class="fas fa-cogs"></i> Token Features</h5>
+                                
+                                <div class="card bg-light mb-3">
+                                    <div class="card-body">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="isMintable" name="is_mintable">
+                                            <label class="form-check-label" for="isMintable">
+                                                <strong>Mintable</strong>
+                                                <small class="d-block text-muted">Allow creating new tokens after deployment</small>
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="isBurnable" name="is_burnable">
+                                            <label class="form-check-label" for="isBurnable">
+                                                <strong>Burnable</strong>
+                                                <small class="d-block text-muted">Allow destroying tokens to reduce supply</small>
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="isPausable" name="is_pausable">
+                                            <label class="form-check-label" for="isPausable">
+                                                <strong>Pausable</strong>
+                                                <small class="d-block text-muted">Allow pausing all token transfers</small>
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="hasTaxes" name="has_taxes">
+                                            <label class="form-check-label" for="hasTaxes">
+                                                <strong>Transaction Taxes</strong>
+                                                <small class="d-block text-muted">Charge fees on buy/sell transactions</small>
+                                            </label>
+                                        </div>
+
+                                        <div id="taxSettings" class="mt-3" style="display: none;">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <label for="buyTax" class="form-label">Buy Tax (%)</label>
+                                                    <input type="number" class="form-control" id="buyTax" name="buy_tax_percentage" 
+                                                           min="0" max="25" value="0">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label for="sellTax" class="form-label">Sell Tax (%)</label>
+                                                    <input type="number" class="form-control" id="sellTax" name="sell_tax_percentage" 
+                                                           min="0" max="25" value="0">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="isAntiWhale" name="is_anti_whale">
+                                            <label class="form-check-label" for="isAntiWhale">
+                                                <strong>Anti-Whale Protection</strong>
+                                                <small class="d-block text-muted">Limit maximum transaction and wallet amounts</small>
+                                            </label>
+                                        </div>
+
+                                        <div id="antiWhaleSettings" class="mt-3" style="display: none;">
+                                            <div class="mb-2">
+                                                <label for="maxTxAmount" class="form-label">Max Transaction Amount</label>
+                                                <input type="number" class="form-control" id="maxTxAmount" name="max_tx_amount" 
+                                                       placeholder="10000">
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="maxWalletAmount" class="form-label">Max Wallet Amount</label>
+                                                <input type="number" class="form-control" id="maxWalletAmount" name="max_wallet_amount" 
+                                                       placeholder="50000">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Social Links -->
+                                <h6 class="mb-3 text-info"><i class="fas fa-share-alt"></i> Social Links (Optional)</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="website" class="form-label">Website</label>
+                                    <input type="url" class="form-control" id="website" name="website" 
+                                           placeholder="https://yourtoken.com">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="twitter" class="form-label">Twitter</label>
+                                    <input type="url" class="form-control" id="twitter" name="twitter" 
+                                           placeholder="https://twitter.com/yourtoken">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="telegram" class="form-label">Telegram</label>
+                                    <input type="url" class="form-control" id="telegram" name="telegram" 
+                                           placeholder="https://t.me/yourtoken">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="imageUrl" class="form-label">Token Logo URL</label>
+                                    <input type="url" class="form-control" id="imageUrl" name="image_url" 
+                                           placeholder="https://example.com/logo.png">
+                                    <div class="form-text">Recommended: 200x200px PNG or JPG</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Wallet Connection -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5 class="mb-3 text-warning"><i class="fas fa-wallet"></i> Wallet & Deployment</h5>
+                                {{ template "wallet_connect" . }}
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button type="button" class="btn btn-outline-secondary me-2" onclick="resetForm()">
+                                    <i class="fas fa-undo"></i> Reset
+                                </button>
+                                <button type="button" class="btn btn-success me-2" onclick="saveAsDraft()">
+                                    <i class="fas fa-save"></i> Save as Draft
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-lg deploy-btn" disabled>
+                                    <i class="fas fa-rocket"></i> Connect Wallet to Deploy
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-1px);
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle tax settings
+    document.getElementById('hasTaxes').addEventListener('change', function() {
+        document.getElementById('taxSettings').style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Toggle anti-whale settings
+    document.getElementById('isAntiWhale').addEventListener('change', function() {
+        document.getElementById('antiWhaleSettings').style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Auto-uppercase symbol
+    document.getElementById('tokenSymbol').addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+    });
+
+    // Form validation
+    document.getElementById('tokenForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (this.checkValidity()) {
+            createToken();
+        }
+        this.classList.add('was-validated');
+    });
+});
+
+function createToken() {
+    const formData = new FormData(document.getElementById('tokenForm'));
+    const data = Object.fromEntries(formData);
+    
+    // Convert checkboxes to booleans
+    data.is_mintable = document.getElementById('isMintable').checked;
+    data.is_burnable = document.getElementById('isBurnable').checked;
+    data.is_pausable = document.getElementById('isPausable').checked;
+    data.has_taxes = document.getElementById('hasTaxes').checked;
+    data.is_anti_whale = document.getElementById('isAntiWhale').checked;
+
+    fetch('/api/tokens', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showNotification('Error: ' + data.error, 'error');
+        } else {
+            showNotification('Token created successfully!', 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 2000);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Failed to create token', 'error');
+    });
+}
+
+function saveAsDraft() {
+    // Similar to createToken but with draft status
+    createToken();
+}
+
+function resetForm() {
+    document.getElementById('tokenForm').reset();
+    document.getElementById('tokenForm').classList.remove('was-validated');
+    document.getElementById('taxSettings').style.display = 'none';
+    document.getElementById('antiWhaleSettings').style.display = 'none';
+}
+
+function showNotification(message, type) {
+    // Implementation depends on your notification system
+    alert(message);
+}
+</script>
+{{end}}

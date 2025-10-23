@@ -8,16 +8,20 @@ import (
 	"github.com/tiagorlampert/CHAOS/internal"
 	"github.com/tiagorlampert/CHAOS/internal/environment"
 	"github.com/tiagorlampert/CHAOS/internal/middleware"
+	"github.com/tiagorlampert/CHAOS/internal/seeds"
 	"github.com/tiagorlampert/CHAOS/internal/utils"
 	"github.com/tiagorlampert/CHAOS/internal/utils/system"
 	"github.com/tiagorlampert/CHAOS/internal/utils/ui"
 	httpDelivery "github.com/tiagorlampert/CHAOS/presentation/http"
 	authRepo "github.com/tiagorlampert/CHAOS/repositories/auth"
+	blockchainRepo "github.com/tiagorlampert/CHAOS/repositories/blockchain"
 	deviceRepo "github.com/tiagorlampert/CHAOS/repositories/device"
+	tokenRepo "github.com/tiagorlampert/CHAOS/repositories/token"
 	userRepo "github.com/tiagorlampert/CHAOS/repositories/user"
 	"github.com/tiagorlampert/CHAOS/services/auth"
 	"github.com/tiagorlampert/CHAOS/services/client"
 	"github.com/tiagorlampert/CHAOS/services/device"
+	"github.com/tiagorlampert/CHAOS/services/token"
 	"github.com/tiagorlampert/CHAOS/services/url"
 	"github.com/tiagorlampert/CHAOS/services/user"
 	"gorm.io/gorm"
@@ -57,6 +61,15 @@ func main() {
 		logger.WithField(`cause`, err.Error()).Fatal(`error migrating database`)
 	}
 
+	// Seed default data
+	if err := seeds.SeedNetworks(db.Conn); err != nil {
+		logger.WithField(`cause`, err.Error()).Error(`error seeding networks`)
+	}
+
+	if err := seeds.SeedContractTemplates(db.Conn); err != nil {
+		logger.WithField(`cause`, err.Error()).Error(`error seeding contract templates`)
+	}
+
 	if err := NewApp(logger, configuration, db.Conn).Run(); err != nil {
 		logger.WithField(`cause`, err).Fatal(fmt.Sprintf("failed to start %s Application", AppName))
 	}
@@ -66,10 +79,13 @@ func NewApp(logger *logrus.Logger, configuration *environment.Configuration, dbC
 	authRepository := authRepo.NewRepository(dbClient)
 	userRepository := userRepo.NewRepository(dbClient)
 	deviceRepository := deviceRepo.NewRepository(dbClient)
+	tokenRepository := tokenRepo.NewRepository(dbClient)
+	blockchainRepository := blockchainRepo.NewRepository(dbClient)
 
 	authService := auth.NewAuthService(logger, configuration.SecretKey, authRepository)
 	userService := user.NewUserService(userRepository)
 	deviceService := device.NewDeviceService(deviceRepository)
+	tokenService := token.NewTokenService(logger, tokenRepository, blockchainRepository)
 	clientService := client.NewClientService(Version, configuration, authRepository, authService)
 	urlService := url.NewUrlService(clientService)
 
@@ -80,7 +96,7 @@ func NewApp(logger *logrus.Logger, configuration *environment.Configuration, dbC
 	router := httpDelivery.NewRouter()
 	jwtMiddleware := middleware.NewJwtMiddleware(authService, userService)
 
-	httpDelivery.NewController(configuration, router, logger, jwtMiddleware, clientService, authService, userService, deviceService, urlService)
+	httpDelivery.NewController(configuration, router, logger, jwtMiddleware, clientService, authService, userService, deviceService, tokenService, urlService)
 
 	return &App{
 		Configuration: configuration,

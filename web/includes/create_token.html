@@ -1,0 +1,62 @@
+{{ define "content" }}
+<div class="container">
+  <div class="col-md-10 mx-auto">
+    <div class="card shadow card-body">
+      <h2 class="text-left mb-3">Create Token</h2>
+      <p class="text-muted mb-4">Deploy a simple ERC‑20 token to EVM networks from your browser. Connect a wallet, fill the form, and deploy.</p>
+      <div class="container-fluid py-2">
+        <form id="token-form">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="name">Token Name *</label>
+                <input id="name" type="text" class="form-control" placeholder="e.g., Doge Max" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="symbol">Token Symbol *</label>
+                <input id="symbol" type="text" class="form-control" placeholder="e.g., DOGEMAX" required>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="supply">Initial Supply *</label>
+                <input id="supply" type="number" min="0" step="1" class="form-control" placeholder="e.g., 1000000" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="decimals">Decimals *</label>
+                <input id="decimals" type="number" min="0" max="18" step="1" value="18" class="form-control" required>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 mb-2">
+              <button id="connectBtn" type="button" class="btn btn-outline-primary mr-2">Connect Wallet</button>
+              <button id="deployBtn" type="button" class="btn btn-primary">Deploy</button>
+              <span id="status" class="ml-3 text-muted"></span>
+            </div>
+          </div>
+        </form>
+        <div class="row mt-3">
+          <div class="col-md-12">
+            <div id="result" class="alert" role="alert" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="small text-muted mt-3">
+      <p>
+        This tool uses your wallet to deploy a minimal ERC‑20. Gas fees apply. Use testnets first.
+      </p>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/solc@0.8.21/soljson.js"></script>
+<script src="static/js/app/create_token.js"></script>
+{{ end }}

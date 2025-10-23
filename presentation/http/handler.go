@@ -47,6 +47,12 @@ func (h *httpController) loginHandler(c *gin.Context) {
 	return
 }
 
+// Public page: Create Token (ERC-20)
+func (h *httpController) createTokenPageHandler(c *gin.Context) {
+    c.HTML(http.StatusOK, "create_token.html", gin.H{"unauthorized": true})
+    return
+}
+
 func (h *httpController) getSettingsHandler(c *gin.Context) {
 	auth, err := h.AuthService.GetAuthConfig()
 	if err != nil {

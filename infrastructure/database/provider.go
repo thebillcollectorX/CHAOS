@@ -32,5 +32,6 @@ func (p *Provider) Migrate() error {
 		&entities.User{},
 		&entities.Device{},
 		&entities.Auth{},
+		&entities.Token{},
 	)
 }

@@ -1,0 +1,230 @@
+{{ define "content" }}
+<div class="token-creator-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">🚀 Create Your Meme Coin</h1>
+            <p class="hero-subtitle">Launch your own cryptocurrency in minutes. No coding required!</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Form Section -->
+            <div class="col-lg-7 mb-4">
+                <div class="card shadow-lg creation-card">
+                    <div class="card-body p-4">
+                        <h2 class="section-title mb-4">
+                            <i class="fas fa-coins"></i> Token Details
+                        </h2>
+                        
+                        <form id="token-form">
+                            <div class="form-group mb-4">
+                                <label for="token-name" class="form-label">Token Name *</label>
+                                <input type="text" class="form-control form-control-lg" id="token-name" 
+                                       placeholder="e.g., DogeCoin, ShibaInu" required>
+                                <small class="form-text text-muted">The full name of your token</small>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="token-symbol" class="form-label">Token Symbol *</label>
+                                <input type="text" class="form-control form-control-lg" id="token-symbol" 
+                                       placeholder="e.g., DOGE, SHIB" maxlength="10" required>
+                                <small class="form-text text-muted">Short ticker symbol (2-10 characters)</small>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="total-supply" class="form-label">Total Supply *</label>
+                                <input type="number" class="form-control form-control-lg" id="total-supply" 
+                                       placeholder="1000000000" min="1" required>
+                                <small class="form-text text-muted">Total number of tokens to create</small>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="decimals" class="form-label">Decimals</label>
+                                <select class="form-control form-control-lg" id="decimals">
+                                    <option value="18" selected>18 (Standard)</option>
+                                    <option value="9">9</option>
+                                    <option value="6">6</option>
+                                    <option value="0">0 (No decimals)</option>
+                                </select>
+                                <small class="form-text text-muted">Number of decimal places</small>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="network" class="form-label">Blockchain Network *</label>
+                                <select class="form-control form-control-lg" id="network" required>
+                                    <option value="">Select Network</option>
+                                    <option value="ethereum">Ethereum (ETH)</option>
+                                    <option value="bsc">Binance Smart Chain (BSC)</option>
+                                    <option value="polygon">Polygon (MATIC)</option>
+                                    <option value="solana">Solana (SOL)</option>
+                                    <option value="base">Base</option>
+                                </select>
+                                <small class="form-text text-muted">Choose the blockchain for deployment</small>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" rows="4" 
+                                          placeholder="Tell the world about your amazing meme coin..."></textarea>
+                                <small class="form-text text-muted">Optional description for your token</small>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="image-url" class="form-label">Token Image URL</label>
+                                <input type="url" class="form-control form-control-lg" id="image-url" 
+                                       placeholder="https://example.com/image.png">
+                                <small class="form-text text-muted">URL to your token's logo (optional)</small>
+                            </div>
+
+                            <div class="alert alert-info mb-4">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Note:</strong> A small gas fee will be required to deploy your token on the blockchain.
+                            </div>
+
+                            <button type="button" class="btn btn-primary btn-lg btn-block create-btn" onclick="createToken()">
+                                <i class="fas fa-rocket"></i> Create Token
+                            </button>
+
+                            <p class="text-muted mt-3 text-center">
+                                <strong>*</strong> Required fields
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="col-lg-5 mb-4">
+                <div class="card shadow-lg info-card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <i class="fas fa-lightbulb"></i> Why Create a Meme Coin?
+                        </h3>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check-circle"></i> No coding skills required</li>
+                            <li><i class="fas fa-check-circle"></i> Deploy in minutes</li>
+                            <li><i class="fas fa-check-circle"></i> Full ownership of your token</li>
+                            <li><i class="fas fa-check-circle"></i> Built on secure blockchain</li>
+                            <li><i class="fas fa-check-circle"></i> Ready for trading</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card shadow-lg info-card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-line"></i> Popular Networks
+                        </h3>
+                        <div class="network-info">
+                            <div class="network-item">
+                                <strong>Ethereum</strong>
+                                <span class="badge badge-primary">Most Popular</span>
+                                <p class="small">Highest liquidity and adoption</p>
+                            </div>
+                            <div class="network-item">
+                                <strong>BSC</strong>
+                                <span class="badge badge-warning">Low Fees</span>
+                                <p class="small">Fast and affordable transactions</p>
+                            </div>
+                            <div class="network-item">
+                                <strong>Solana</strong>
+                                <span class="badge badge-success">Ultra Fast</span>
+                                <p class="small">Lightning-fast confirmations</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-lg info-card">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <i class="fas fa-shield-alt"></i> Security First
+                        </h3>
+                        <p>All tokens are created using audited smart contracts. Your token will be:</p>
+                        <ul class="security-list">
+                            <li>✓ Immutable and secure</li>
+                            <li>✓ Transparent on blockchain</li>
+                            <li>✓ Ready for DEX listing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Tokens Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card shadow-lg">
+                    <div class="card-body">
+                        <h2 class="section-title mb-4">
+                            <i class="fas fa-fire"></i> Recently Created Tokens
+                        </h2>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="tokens-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Symbol</th>
+                                        <th>Network</th>
+                                        <th>Supply</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tokens-list">
+                                    {{ if .Tokens }}
+                                        {{ range .Tokens }}
+                                        <tr>
+                                            <td>
+                                                {{ if .ImageURL }}
+                                                <img src="{{ .ImageURL }}" alt="{{ .Name }}" class="token-icon">
+                                                {{ end }}
+                                                {{ .Name }}
+                                            </td>
+                                            <td><strong>{{ .Symbol }}</strong></td>
+                                            <td><span class="badge badge-info">{{ .Network }}</span></td>
+                                            <td>{{ .TotalSupply }}</td>
+                                            <td>
+                                                {{ if eq .Status "deployed" }}
+                                                <span class="badge badge-success">Deployed</span>
+                                                {{ else if eq .Status "pending" }}
+                                                <span class="badge badge-warning">Pending</span>
+                                                {{ else }}
+                                                <span class="badge badge-danger">Failed</span>
+                                                {{ end }}
+                                            </td>
+                                            <td>{{ .CreatedAt.Format "2006-01-02" }}</td>
+                                            <td>
+                                                {{ if .Address }}
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewToken('{{ .Address }}')">
+                                                    <i class="fas fa-external-link-alt"></i> View
+                                                </button>
+                                                {{ end }}
+                                            </td>
+                                        </tr>
+                                        {{ end }}
+                                    {{ else }}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">
+                                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                                            <p>No tokens created yet. Be the first!</p>
+                                        </td>
+                                    </tr>
+                                    {{ end }}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="static/js/app/tokens.js"></script>
+<link rel="stylesheet" href="static/css/tokens.css">
+{{ end }}
